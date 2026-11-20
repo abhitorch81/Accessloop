@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "accessloop-agent"
+version = "0.1.0"
+description = "A small, inspectable agent harness with tool policies and resumable runs"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "Abhishek Nandy"}]
+dependencies = []
+
+[project.scripts]
+accessloop = "accessloop.cli:main"
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+browser = ["playwright>=1.48"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
