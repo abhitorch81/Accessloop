@@ -4,13 +4,21 @@ A small, reusable Python agent harness for tool-driven tasks. The core is indepe
 
 **Status:** v0.1 prototype. The agent-loop demo simulates an observation. The optional CLI captures real page controls and keyboard focus order; source patch generation, automated task success evaluation, and comprehensive accessibility audits are roadmap items.
 
-## Try it
+## Try it on macOS
+
+Use Python 3.10 or newer. Check your installation with `python3 --version`. The system may provide `python3` without a `python` command; activate a virtual environment before installing dependencies.
 
 ```bash
-python -m pip install -e .
-python examples/demo.py
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -e '.[browser]'
+python -m playwright install chromium
 python -m unittest discover -s tests -v
+accessloop inspect https://example.org --tabs 10
 ```
+
+If `python3` is missing or older than 3.10, install a current Python release and restart the terminal before running the commands. Keep `.[browser]` in single quotes in zsh so shell glob expansion does not alter it. Once activated, `python` and `accessloop` resolve to the virtual environment. Run `python examples/demo.py` for the offline example.
 
 ## Build an agent
 
@@ -21,9 +29,6 @@ The default tool approval callback denies approval. Tool exceptions become obser
 ## Inspect a real page
 
 ```bash
-python -m pip install -e '.[browser]'
-python -m playwright install chromium
-accessloop inspect https://example.org --tabs 10
 accessloop inspect file:///absolute/path/to/examples/inaccessible.html --tabs 10
 ```
 
