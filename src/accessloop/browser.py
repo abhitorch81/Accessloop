@@ -15,6 +15,18 @@ class PageEvidence:
     screenshot: str | None = None
 
 
+def _record_focus(focus: list[dict[str, str]], seen: set[int], observation: dict) -> bool:
+    """Return False after focus cycles to an element already reported."""
+    index = observation.pop("node_index")
+    if observation["tag"] in {"body", "html"} or index < 0:
+        return True
+    if index in seen:
+        return False
+    seen.add(index)
+    focus.append(observation)
+    return True
+
+
 def inspect_page(url: str, *, tabs: int = 12, screenshot: str | None = None) -> PageEvidence:
     """Inspect one user-specified page without submitting forms or clicking links.
 
@@ -46,14 +58,18 @@ def inspect_page(url: str, *, tabs: int = 12, screenshot: str | None = None) -> 
                 id: n.id || ''
             }))""")
             focus = []
+            seen: set[int] = set()
             for _ in range(tabs):
                 page.keyboard.press("Tab")
-                focus.append(page.evaluate("""() => ({
+                observation = page.evaluate("""() => ({
                     tag: document.activeElement?.tagName?.toLowerCase() || '',
                     text: (document.activeElement?.innerText || document.activeElement?.value || '').trim().slice(0, 120),
                     label: document.activeElement?.getAttribute('aria-label') || '',
-                    id: document.activeElement?.id || ''
-                })"""))
+                    id: document.activeElement?.id || '',
+                    node_index: Array.prototype.indexOf.call(document.querySelectorAll('*'), document.activeElement)
+                })""")
+                if not _record_focus(focus, seen, observation):
+                    break
             if screenshot:
                 page.screenshot(path=str(path), full_page=True)
             return PageEvidence(page.url, page.title(), controls, focus, str(path) if screenshot else None)
